@@ -28,7 +28,7 @@ static void * xmalloc(size_t size)
 /*----------------------------------------------------------------------------*/
 /** Open file, print an error and exit if fail.
  */
-FILE * xfopen(const char * path, const char * mode)
+static FILE * xfopen(const char * path, const char * mode)
 {
   FILE * f = fopen(path,mode);
   if( f == NULL ) error("xfopen: unable to open file");
@@ -38,14 +38,14 @@ FILE * xfopen(const char * path, const char * mode)
 /*----------------------------------------------------------------------------*/
 /** Close file, print an error and exit if fail.
  */
-int xfclose(FILE * f)
+static int xfclose(FILE * f)
 {
   if( fclose(f) == EOF ) error("xfclose: unable to close file");
   return 0;
 }
 
 /*----------------------------------------------------------------------------*/
-double * read_asc(char * name, int * X, int * Y, int * Z, int * C)
+static double * read_asc(char * name, int * X, int * Y, int * Z, int * C)
 {
   FILE * f;
   int i,n;
@@ -78,7 +78,7 @@ double * read_asc(char * name, int * X, int * Y, int * Z, int * C)
 }
 
 /*----------------------------------------------------------------------------*/
-void write_asc(double * image, int X, int Y, int Z, int C, char * name)
+static void write_asc(double * image, int X, int Y, int Z, int C, char * name)
 {
   FILE * f;
   int i;
@@ -125,7 +125,7 @@ static void gaussian_kernel(double * kernel, int n, double sigma, double mean)
 }
 
 /*----------------------------------------------------------------------------*/
-static void gaussian_filter(double * image, int X, int Y, double sigma)
+void gaussian_filter(double * image, int X, int Y, double sigma)
 {
   int x,y,offset,i,j,nx2,ny2,n;
   double * kernel;
