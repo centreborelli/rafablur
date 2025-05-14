@@ -4,4 +4,7 @@ LDLIBS = -lm
 
 all: $(BIN)
 
-clean: ; $(RM) $(BIN)
+jirafa_blur.o: CPPFLAGS += -DIMAGE_GAUSS_OMIT_MAIN
+jirafa_blur.o: image_gauss.c ; $(COMPILE.c) $^ -o $@
+
+clean: ; $(RM) $(BIN) *.o

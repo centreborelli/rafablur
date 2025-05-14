@@ -26,74 +26,6 @@ static void * xmalloc(size_t size)
 }
 
 /*----------------------------------------------------------------------------*/
-/** Open file, print an error and exit if fail.
- */
-static FILE * xfopen(const char * path, const char * mode)
-{
-  FILE * f = fopen(path,mode);
-  if( f == NULL ) error("xfopen: unable to open file");
-  return f;
-}
-
-/*----------------------------------------------------------------------------*/
-/** Close file, print an error and exit if fail.
- */
-static int xfclose(FILE * f)
-{
-  if( fclose(f) == EOF ) error("xfclose: unable to close file");
-  return 0;
-}
-
-/*----------------------------------------------------------------------------*/
-static double * read_asc(char * name, int * X, int * Y, int * Z, int * C)
-{
-  FILE * f;
-  int i,n;
-  double val;
-  double * image;
-
-  /* open file */
-  f = xfopen(name,"r");
-
-  /* read header */
-  n = fscanf(f,"%u%*c%u%*c%u%*c%u",X,Y,Z,C);
-  if( n!=4 || *X<=0 || *Y<=0 || *Z<=0 || *C<=0 )
-    error("read_asc: invalid asc file A");
-
-  /* get memory */
-  image = (double *) xmalloc( *X * *Y * *Z * *C * sizeof(double) );
-
-  /* read data */
-  for(i=0; i<(*X * *Y * *Z * *C); i++)
-    {
-      n = fscanf(f,"%lf%*[^0-9.eE+-]",&val);
-      if( n!=1 ) error("read_asc: invalid asc file");
-      image[i] = val;
-    }
-
-  /* close file */
-  xfclose(f);
-
-  return image;
-}
-
-/*----------------------------------------------------------------------------*/
-static void write_asc(double * image, int X, int Y, int Z, int C, char * name)
-{
-  FILE * f;
-  int i;
-
-  /* check input */
-  if( image == NULL || X < 1 || Y < 1 || Z < 1 || X < 1 )
-    error("write_asc: invalid image");
-
-  f = xfopen(name,"w");                                  /* open file */
-  fprintf(f,"%u %u %u %u\n",X,Y,Z,C);                    /* write header */
-  for(i=0; i<X*Y*Z*C; i++) fprintf(f,"%.16g ",image[i]); /* write data */
-  xfclose(f);                                            /* close file */
-}
-
-/*----------------------------------------------------------------------------*/
 /** Compute a Gaussian kernel of length 'n', standard deviation 'sigma',
     and centered at value 'mean'.
 
@@ -201,6 +133,77 @@ void gaussian_filter(double * image, int X, int Y, double sigma)
   free( (void *) tmp );
 }
 
+#ifndef IMAGE_GAUSS_OMIT_MAIN
+
+/*----------------------------------------------------------------------------*/
+/** Open file, print an error and exit if fail.
+ */
+static FILE * xfopen(const char * path, const char * mode)
+{
+  FILE * f = fopen(path,mode);
+  if( f == NULL ) error("xfopen: unable to open file");
+  return f;
+}
+
+/*----------------------------------------------------------------------------*/
+/** Close file, print an error and exit if fail.
+ */
+static int xfclose(FILE * f)
+{
+  if( fclose(f) == EOF ) error("xfclose: unable to close file");
+  return 0;
+}
+
+/*----------------------------------------------------------------------------*/
+static double * read_asc(char * name, int * X, int * Y, int * Z, int * C)
+{
+  FILE * f;
+  int i,n;
+  double val;
+  double * image;
+
+  /* open file */
+  f = xfopen(name,"r");
+
+  /* read header */
+  n = fscanf(f,"%u%*c%u%*c%u%*c%u",X,Y,Z,C);
+  if( n!=4 || *X<=0 || *Y<=0 || *Z<=0 || *C<=0 )
+    error("read_asc: invalid asc file A");
+
+  /* get memory */
+  image = (double *) xmalloc( *X * *Y * *Z * *C * sizeof(double) );
+
+  /* read data */
+  for(i=0; i<(*X * *Y * *Z * *C); i++)
+    {
+      n = fscanf(f,"%lf%*[^0-9.eE+-]",&val);
+      if( n!=1 ) error("read_asc: invalid asc file");
+      image[i] = val;
+    }
+
+  /* close file */
+  xfclose(f);
+
+  return image;
+}
+
+/*----------------------------------------------------------------------------*/
+static void write_asc(double * image, int X, int Y, int Z, int C, char * name)
+{
+  FILE * f;
+  int i;
+
+  /* check input */
+  if( image == NULL || X < 1 || Y < 1 || Z < 1 || X < 1 )
+    error("write_asc: invalid image");
+
+  f = xfopen(name,"w");                                  /* open file */
+  fprintf(f,"%u %u %u %u\n",X,Y,Z,C);                    /* write header */
+  for(i=0; i<X*Y*Z*C; i++) fprintf(f,"%.16g ",image[i]); /* write data */
+  xfclose(f);                                            /* close file */
+}
+
+
 /*----------------------------------------------------------------------------*/
 /*                                    Main                                    */
 /*----------------------------------------------------------------------------*/
@@ -225,3 +228,5 @@ int main(int argc, char ** argv)
   return 0;
 }
 /*----------------------------------------------------------------------------*/
+
+#endif//IMAGE_GAUSS_OMIT_MAIN
